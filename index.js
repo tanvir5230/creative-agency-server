@@ -6,7 +6,7 @@ const MongoClient = require("mongodb").MongoClient;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wghoc.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -32,7 +32,7 @@ client.connect((err) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("hello world");
+  res.send("hello world again");
 });
 
 app.listen(port);
