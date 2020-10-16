@@ -9,7 +9,7 @@ const MongoClient = require("mongodb").MongoClient;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wghoc.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 // multer
-const storage = multer.diskStorage({
+const storageService = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/services");
   },
@@ -17,7 +17,16 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-const upload = multer({ storage: storage });
+const storageOrder = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/orders");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+const uploadService = multer({ storage: storageService });
+const uploadOrder = multer({ storage: storageOrder }).single("projectFile");
 //multer
 
 const app = express();
@@ -91,7 +100,7 @@ client.connect((err) => {
   // ordered services get and post start
 
   app.post("/order", function (req, res) {
-    upload(req, res, function (err) {
+    uploadOrder(req, res, function (err) {
       if (err instanceof multer.MulterError) {
         return res.status(500).json(err);
       } else if (err) {
@@ -148,7 +157,7 @@ client.connect((err) => {
   // modify status of project end
 
   // add service start
-  app.post("/addservice", upload.single("iconFile"), (req, res) => {
+  app.post("/addservice", uploadService.single("iconFile"), (req, res) => {
     try {
       const data = req.body;
       data.image =
