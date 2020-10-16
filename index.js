@@ -32,10 +32,13 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 client.connect((err) => {
+  // collections
   const adminCollection = client.db(process.env.DB_NAME).collection("admins");
   const serviceCollection = client
     .db(process.env.DB_NAME)
     .collection("services");
+  const reviewCollection = client.db(process.env.DB_NAME).collection("reviews");
+  const orderCollection = client.db(process.env.DB_NAME).collection("orders");
 
   // verify user as admin or client start
   app.post("/checkuser", (req, res) => {
@@ -52,6 +55,9 @@ client.connect((err) => {
   });
   // verify user as admin or client end
 
+  // client section
+  // client section
+
   //get service Data
   app.get("/services", (req, res) => {
     try {
@@ -64,7 +70,7 @@ client.connect((err) => {
   });
 
   // review data post and get start
-  const reviewCollection = client.db(process.env.DB_NAME).collection("reviews");
+
   app.post("/review", (req, res) => {
     const reviewData = req.body;
     reviewCollection.insertOne(reviewData).then((result) => {
@@ -83,8 +89,6 @@ client.connect((err) => {
   // review data post and get end
 
   // ordered services get and post start
-
-  const orderCollection = client.db(process.env.DB_NAME).collection("orders");
 
   app.post("/order", function (req, res) {
     upload(req, res, function (err) {
@@ -107,7 +111,10 @@ client.connect((err) => {
       res.send(docs);
     });
   });
-  // ordered services get and post start
+  // ordered services get and post end
+
+  // client section
+  // client section end
 
   // admin portion
   // admin portion
