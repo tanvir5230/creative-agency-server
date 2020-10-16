@@ -11,7 +11,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 // multer
 const storageService = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./public/services");
+    cb(null, `${__dirname}/public/services`);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -19,7 +19,7 @@ const storageService = multer.diskStorage({
 });
 const storageOrder = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./public/orders");
+    cb(null, `${__dirname}/public/orders`);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -136,7 +136,7 @@ client.connect((err) => {
         res.send(docs);
       });
     } catch (err) {
-      res.send({ err: "could't find data." });
+      res.send({ err: "couldn't find data." });
     }
   });
 
@@ -160,9 +160,7 @@ client.connect((err) => {
   app.post("/addservice", uploadService.single("iconFile"), (req, res) => {
     try {
       const data = req.body;
-      data.image =
-        "https://creative-agency-t.herokuapp.com/public/images/" +
-        req.file.originalname;
+      data.image = __dirname + "/public/services/" + req.file.originalname;
       serviceCollection.insertOne(data).then((result) => {
         if (result.insertedCount > 0) {
           res.send("Ok");
