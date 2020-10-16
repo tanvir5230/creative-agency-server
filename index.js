@@ -152,7 +152,7 @@ client.connect((err) => {
     try {
       const data = req.body;
       data.image =
-        "https://creative-agency-t.herokuapp.com/public/services" +
+        "https://creative-agency-t.herokuapp.com/public/images/" +
         req.file.originalname;
       serviceCollection.insertOne(data).then((result) => {
         if (result.insertedCount > 0) {
