@@ -17,6 +17,8 @@ const client = new MongoClient(uri, {
 });
 client.connect((err) => {
   const adminCollection = client.db(process.env.DB_NAME).collection("admins");
+
+  // verify user as admin or client start
   app.post("/checkuser", (req, res) => {
     const email = req.body.email;
     adminCollection.findOne({ email }, (err, result) => {
@@ -29,10 +31,26 @@ client.connect((err) => {
       }
     });
   });
-});
+  // verify user as admin or client end
 
-app.get("/", (req, res) => {
-  res.send("hello world again");
+  // review data post and get start
+  const reviewCollection = client.db(process.env.DB_NAME).collection("reviews");
+  app.post("/review", (req, res) => {
+    const reviewData = req.body;
+    reviewCollection.insertOne(reviewData).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.get("/reviews", (req, res) => {
+    reviewCollection
+      .find({})
+      .limit(6)
+      .toArray((err, docs) => {
+        res.send(docs);
+      });
+  });
+  // review data post and get end
 });
 
 app.listen(port);
