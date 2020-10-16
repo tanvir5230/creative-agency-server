@@ -3,22 +3,21 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const { urlencoded } = require("body-parser");
 require("dotenv").config();
+const multer = require("multer");
+const { ObjectId } = require("mongodb");
 const MongoClient = require("mongodb").MongoClient;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wghoc.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 // multer
-const multer = require("multer");
-const { ObjectId } = require("mongodb");
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "images");
+  destination: (req, file, cb) => {
+    cb(null, "./public/services");
   },
-  filename: function (req, file, cb) {
-    // const fileName = req.body.name;
-    cb(null, file.originalname + "-" + Date.now());
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
   },
 });
-const upload = multer({ storage: storage }).single("projectFile");
+const upload = multer({ storage: storage });
 //multer
 
 const app = express();
@@ -34,6 +33,9 @@ const client = new MongoClient(uri, {
 });
 client.connect((err) => {
   const adminCollection = client.db(process.env.DB_NAME).collection("admins");
+  const serviceCollection = client
+    .db(process.env.DB_NAME)
+    .collection("services");
 
   // verify user as admin or client start
   app.post("/checkuser", (req, res) => {
@@ -49,6 +51,17 @@ client.connect((err) => {
     });
   });
   // verify user as admin or client end
+
+  //get service Data
+  app.get("/services", (req, res) => {
+    try {
+      serviceCollection.find({}).toArray((err, docs) => {
+        res.send(docs);
+      });
+    } catch (err) {
+      res.send("error");
+    }
+  });
 
   // review data post and get start
   const reviewCollection = client.db(process.env.DB_NAME).collection("reviews");
@@ -96,6 +109,9 @@ client.connect((err) => {
   });
   // ordered services get and post start
 
+  // admin portion
+  // admin portion
+
   // project list for admin
 
   app.get("/projectlist", (req, res) => {
@@ -123,6 +139,24 @@ client.connect((err) => {
       });
   });
   // modify status of project end
+
+  // add service start
+  app.post("/addservice", upload.single("iconFile"), (req, res) => {
+    try {
+      const data = req.body;
+      data.image =
+        "https://creative-agency-t.herokuapp.com/public/services" +
+        req.file.originalname;
+      serviceCollection.insertOne(data).then((result) => {
+        if (result.insertedCount > 0) {
+          res.send("Ok");
+        }
+      });
+    } catch (err) {
+      res.send("your data wasn't saved");
+    }
+  });
+  // add service end
 
   // make admin start
   app.post("/makeadmin", (req, res) => {
