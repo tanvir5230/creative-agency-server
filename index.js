@@ -35,6 +35,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -55,10 +56,8 @@ client.connect((err) => {
     adminCollection.findOne({ email }, (err, result) => {
       if (result) {
         res.send({ userType: "admin" });
-        console.log("admin");
       } else {
         res.send({ userType: "client" });
-        console.log("client");
       }
     });
   });
@@ -160,7 +159,7 @@ client.connect((err) => {
   app.post("/addservice", uploadService.single("iconFile"), (req, res) => {
     try {
       const data = req.body;
-      data.image = __dirname + "/public/services/" + req.file.originalname;
+      data.image = req.file.originalname;
       serviceCollection.insertOne(data).then((result) => {
         if (result.insertedCount > 0) {
           res.send("Ok");
